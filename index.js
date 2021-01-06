@@ -14,6 +14,8 @@ app.set('view engine', 'html');
 const logger = morgan('dev');
 app.use(logger);
 
+app.use(express.urlencoded({ extended: true}))
+
 const { Hero, Sidekick } = require('./models');
 const { layout } = require('./utils');
 
