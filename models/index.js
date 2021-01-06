@@ -1,6 +1,6 @@
 'use strict';
 
-require('doetnv').config();
+require('dotenv').config();
 
 const fs = require('fs');
 const path = require('path');
