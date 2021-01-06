@@ -2,41 +2,66 @@ const http = require('http');
 const express = require('express');
 const morgan = require('morgan');
 
-
 const PORT = 3333;
 const app = express();
 const server = http.createServer(app);
 
+const es6Renderer = require('express-es6-template-engine');
+app.engine('html', es6Renderer);
+app.set('views', 'templates');
+app.set('view engine', 'html');
+
 const logger = morgan('dev');
 app.use(logger);
 
-const es6renderer = require('express-es6-template-engine');
-app.engine('html', es6renderer);
-app.set('views', 'templates');
-app.set('view engine', 'html')
-
-const { Hero } = require('./models');
+const { Hero, Sidekick } = require('./models');
 const { layout } = require('./utils');
 
-app.get('/list', async (req,res) => {
-    const heroes = await Hero.findAll();
-    console.log(JSON.stringify(heroes, null, 4));
+app.get('/list', async (req, res) => {
+    const heroes = await Hero.findAll({
+        order: [
+            ['name', 'asc']
+        ]
+    });
     // console.log() of the heroes array
-    //res.send('this should be a list of heroes');
+    console.log(JSON.stringify(heroes, null, 4));
+    //res.json(heroes);
     res.render('list', {
         locals: {
-            heroes
+            heroes,
         },
         ...layout
-    })
+    });
+    //res.send('this should be a list of heroes');
 });
 
-app.get('/', (req, res)=> {
-    res.send(`<h1>greating earthlings</h1>`)
+app.get('/hero/:id/sidekick', async (req, res) => {
+    const { id } = req.params;
+    const hero = await Hero.findByPk(id);
+    // get list of sidekicks from database
+    const sidekicks = await Sidekick.findAll({
+        // Later: do that thing Rob requested: don't show
+        // sidekicks that are taken.
+        order: [
+            ['name', 'asc']
+        ]
+    });
+    console.log(JSON.stringify(sidekicks, null, 4));
+    res.render('form', {
+        locals: {
+            hero,
+            sidekicks
+        },
+        ...layout
+    });
 });
 
+app.get('/', (req, res) => {
+    res.send(`
+        <h1>Hello there!</h1>
+    `);
+});
 
-
-server.listen(PORT, () =>{
-    (`listening at ${PORT}`)
+server.listen(PORT, () => {
+    console.log(`Running at http://localhost:${PORT}`);
 });

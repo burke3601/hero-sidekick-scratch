@@ -10,15 +10,15 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+      // define association here
       Sidekick.belongsTo(models.Hero, {
         foreignKey: 'heroId'
       });
-      // define association here
     }
   };
   Sidekick.init({
     name: DataTypes.STRING,
-    heroID: {
+    heroId: {
       type: DataTypes.INTEGER,
       references: {
         model: 'Hero',
